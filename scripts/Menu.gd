@@ -1,6 +1,6 @@
 extends Control
 
-const VERSION = "v0.1.0"
+const VERSION = "v0.2.0"
 
 func _ready():
 	_load_fonts()
