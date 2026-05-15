@@ -1,0 +1,10 @@
+# Godot 3 auto-generated files
+.godot/
+.import/
+export/
+*.translation
+*.import
+
+# OS junk
+.DS_Store
+Thumbs.db
