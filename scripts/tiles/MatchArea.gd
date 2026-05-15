@@ -87,9 +87,38 @@ func accept_drop(fruit_type, pos) -> bool:
 	return false
 
 
+# 互换：与已有水果的槽交换位置。返回被换出的水果类型，-1 表示失败
+func try_swap(fruit_type, pos):
+	for slot in slots:
+		var r = Rect2(slot.rect_global_position, slot.rect_size)
+		if not r.has_point(pos):
+			continue
+		if slot_contents[slot] > 0:
+			var old = slot_contents[slot]
+			slot_contents[slot] = fruit_type
+			slot.fruit_type = fruit_type
+			_check_match()
+			return {"type": old, "slot": slot}
+	return {"type": -1, "slot": null}
+
+
 func _check_match():
 	var t0 = slot_contents[slots[0]]
 	var t1 = slot_contents[slots[1]]
 	var t2 = slot_contents[slots[2]]
 	if t0 > 0 and t0 == t1 and t1 == t2:
 		emit_signal("matched", self, 1)
+
+
+func is_full() -> bool:
+	for slot in slots:
+		if slot_contents[slot] <= 0:
+			return false
+	return true
+
+
+func has_match() -> bool:
+	var t0 = slot_contents[slots[0]]
+	var t1 = slot_contents[slots[1]]
+	var t2 = slot_contents[slots[2]]
+	return t0 > 0 and t0 == t1 and t1 == t2

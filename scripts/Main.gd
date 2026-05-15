@@ -179,15 +179,27 @@ func _do_drag(slot_node, area_ref, fruit_type, pos):
 
 func _handle_touch_up(pos):
 	drag_preview.visible = false
-
+	# 尝试放入空槽
 	for area in match_areas:
 		if area.accept_drop(drag_type, pos):
 			if drag_source_area == null:
 				_refill_bottom(drag_source)
 			dragging = false
 			drag_source_area = null
+			_check_game_over()
 			return
 
+	# 来自消除区 → 尝试互换（仅当有空位时）
+	if drag_source_area != null and _has_empty_slot():
+		for area in match_areas:
+			var swapped = area.try_swap(drag_type, pos)
+			if swapped.type >= 0:
+				_animate_swap_fly(swapped.slot, swapped.type, drag_source_area, drag_source)
+				dragging = false
+				drag_source_area = null
+				return
+
+	# 取消拖拽 → 恢复
 	if drag_source_area != null:
 		drag_source_area.set_slot(drag_source, drag_type)
 	else:
@@ -307,3 +319,69 @@ func _layout_areas():
 func _rect_contains(node, point):
 	var r = Rect2(node.rect_global_position, node.rect_size)
 	return r.has_point(point)
+
+
+func _check_game_over():
+	for area in match_areas:
+		if not area.is_full():
+			return
+	for area in match_areas:
+		if area.has_match():
+			return
+	game_over()
+
+
+func _has_empty_slot() -> bool:
+	for area in match_areas:
+		if not area.is_full():
+			return true
+	return false
+
+
+func _animate_swap_fly(from_slot, fruit_type, to_area, to_slot):
+	var fly = preload("res://scenes/tiles/FruitTile.tscn").instance()
+	fly.draw_bg = false
+	fly.fruit_type = fruit_type
+	fly.rect_min_size = Vector2(64, 64)
+	fly.rect_position = from_slot.rect_global_position
+	add_child(fly)
+	move_child(fly, 4)  # 游戏格子之上，拖拽预览之下
+
+	fly.set_meta("fly_start", from_slot.rect_global_position)
+	fly.set_meta("fly_end", to_slot.rect_global_position)
+	fly.set_meta("fly_t", 0.0)
+	fly.set_meta("fly_area", to_area)
+	fly.set_meta("fly_slot", to_slot)
+	fly.set_meta("fly_fruit", fruit_type)
+
+
+func _process(delta):
+	var fly = null
+	for c in get_children():
+		if c.has_meta("fly_t"):
+			fly = c
+			break
+	if not fly:
+		return
+
+	var t = fly.get_meta("fly_t") + delta * 8.0
+	if t >= 1.0:
+		var area = fly.get_meta("fly_area")
+		var slot = fly.get_meta("fly_slot")
+		var fruit = fly.get_meta("fly_fruit")
+		area.set_slot(slot, fruit)
+		fly.queue_free()
+		return
+
+	fly.set_meta("fly_t", t)
+	var s = fly.get_meta("fly_start")
+	var e = fly.get_meta("fly_end")
+	fly.rect_position = s.linear_interpolate(e, t)
+
+
+func game_over():
+	if animating:
+		return
+	animating = true
+	var overlay = preload("res://scenes/GameOver.tscn").instance()
+	add_child(overlay)

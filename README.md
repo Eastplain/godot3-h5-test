@@ -116,7 +116,35 @@ _set_slot(node, type)  # 设置指定槽位
 3. 定位到左侧幕外（`margin_left: -600`）
 4. 从左侧滑入（`margin_left: -600 → 0`，`EASE_OUT`）
 
-### 7. 屏幕适配（Control 锚点）
+### 7. 互换飞行补间（直线插值）
+
+拖拽水果到另一个有水果的槽位时（且场景有空位），两者互换位置。被换出的水果 B 以 `_process()` 直线 `linear_interpolate` 插值飞向源位置，0.125 秒完成。层级在游戏格子之上、拖拽预览之下，不遮挡操作。
+
+```gdscript
+fly.rect_position = start.linear_interpolate(end, t)
+```
+
+### 8. 游戏结束判定
+
+每次放置水果后检查：
+1. **所有消除槽都已填满**（`is_full()`）
+2. **没有任何一个消除组可三消**（`has_match()`）
+
+两者都满足 → 弹出 `GameOver` 遮罩层，可选"再来一次"或"回到主页"。
+
+互换不改变场上水果总数，所以互换后不触发结束判定。
+
+### 9. 主菜单布局
+
+| 元素 | 位置 | 字号 |
+|------|------|------|
+| 「水果三消」 | 上半部居中（`anchor_top=0.22`） | 52px |
+| 「Match3 Demo」 | 上半部（`anchor_top=0.33`） | 24px |
+| 「开始游戏」 | 下半部居中（`anchor_top=0.72`，220×60） | 30px |
+
+字体使用 Windows `simhei.ttf`，在 `Menu.gd` 中用 `DynamicFontData.font_path` 运行时加载。
+
+### 10. 屏幕适配（Control 锚点）
 
 ```ini
 # project.godot
