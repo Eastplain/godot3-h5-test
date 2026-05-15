@@ -36,13 +36,13 @@ func _ready():
 
 	drag_preview = preload("res://scenes/tiles/FruitTile.tscn").instance()
 	drag_preview.draw_bg = false
-	drag_preview.rect_min_size = Vector2(64, 64)
+	drag_preview.rect_min_size = Vector2(128, 128)
 	drag_preview.visible = false
 	add_child(drag_preview)
 
 	for area in match_areas:
-		area.margin_left = -600.0
-		area.margin_right = -336.0
+		area.margin_left = -1200.0
+		area.margin_right = -672.0
 
 	_phase_bottom()
 
@@ -52,15 +52,15 @@ func _ready():
 func _phase_bottom():
 	_anim_phase = 0
 	for slot in bottom_slots:
-		slot.margin_top = 300.0
-		slot.margin_bottom = 360.0
+		slot.margin_top = 600.0
+		slot.margin_bottom = 720.0
 
 	for i in range(bottom_slots.size()):
 		var slot = bottom_slots[i]
 		var tween = Tween.new()
 		add_child(tween)
-		tween.interpolate_property(slot, "margin_top", 300.0, 0.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.12)
-		tween.interpolate_property(slot, "margin_bottom", 360.0, 60.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.12)
+		tween.interpolate_property(slot, "margin_top", 600.0, 0.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.12)
+		tween.interpolate_property(slot, "margin_bottom", 720.0, 120.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.12)
 		tween.start()
 
 	var delay = bottom_slots.size() * 0.12 + 0.4
@@ -77,12 +77,12 @@ func _phase_area():
 
 	for i in range(match_areas.size()):
 		var area = match_areas[i]
-		area.margin_left = -600.0
-		area.margin_right = -336.0
+		area.margin_left = -1200.0
+		area.margin_right = -672.0
 		var tween = Tween.new()
 		add_child(tween)
-		tween.interpolate_property(area, "margin_left", -600.0, 0.0, 0.35, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.1)
-		tween.interpolate_property(area, "margin_right", -336.0, 264.0, 0.35, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.1)
+		tween.interpolate_property(area, "margin_left", -1200.0, 0.0, 0.35, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.1)
+		tween.interpolate_property(area, "margin_right", -672.0, 528.0, 0.35, Tween.TRANS_QUINT, Tween.EASE_OUT, i * 0.1)
 		tween.start()
 
 	var delay = match_areas.size() * 0.1 + 0.35
@@ -108,8 +108,8 @@ func _animate_area_replace(area):
 
 	var tween = Tween.new()
 	add_child(tween)
-	tween.interpolate_property(area, "margin_left", 0.0, 600.0, 0.45, Tween.TRANS_QUINT, Tween.EASE_IN)
-	tween.interpolate_property(area, "margin_right", 264.0, 864.0, 0.45, Tween.TRANS_QUINT, Tween.EASE_IN)
+	tween.interpolate_property(area, "margin_left", 0.0, 1200.0, 0.45, Tween.TRANS_QUINT, Tween.EASE_IN)
+	tween.interpolate_property(area, "margin_right", 528.0, 1728.0, 0.45, Tween.TRANS_QUINT, Tween.EASE_IN)
 	tween.connect("tween_completed", self, "_on_area_exit", [area])
 	tween.start()
 
@@ -119,13 +119,13 @@ func _on_area_exit(obj, key, area):
 		area.random_fill()
 	else:
 		area.random_fill_normal()
-	area.margin_left = -600.0
-	area.margin_right = -336.0
+	area.margin_left = -1200.0
+	area.margin_right = -672.0
 
 	var tween = Tween.new()
 	add_child(tween)
-	tween.interpolate_property(area, "margin_left", -600.0, 0.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT)
-	tween.interpolate_property(area, "margin_right", -336.0, 264.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT)
+	tween.interpolate_property(area, "margin_left", -1200.0, 0.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT)
+	tween.interpolate_property(area, "margin_right", -672.0, 528.0, 0.4, Tween.TRANS_QUINT, Tween.EASE_OUT)
 	tween.connect("tween_completed", self, "_on_area_enter", [area])
 	tween.start()
 
@@ -144,7 +144,7 @@ func _input(event):
 				_handle_touch_up(event.position)
 
 	if event is InputEventScreenDrag and dragging:
-		drag_preview.rect_position = event.position - Vector2(32, 32)
+		drag_preview.rect_position = event.position - Vector2(64, 64)
 
 func _handle_touch_down(pos):
 	if animating:
@@ -174,7 +174,7 @@ func _do_drag(slot_node, area_ref, fruit_type, pos):
 		slot_node.fruit_type = 0
 
 	drag_preview.fruit_type = drag_type
-	drag_preview.rect_position = pos - Vector2(32, 32)
+	drag_preview.rect_position = pos - Vector2(64, 64)
 	drag_preview.visible = true
 
 func _handle_touch_up(pos):
@@ -295,9 +295,9 @@ func _notification(what):
 		_layout_areas()
 
 func _layout_areas():
-	var area_w = 264.0
-	var area_h = 80.0
-	var gap = 40.0
+	var area_w = 528.0
+	var area_h = 160.0
+	var gap = 80.0
 	var count = match_areas.size()
 	var total_h = count * area_h + (count - 1) * gap
 
@@ -342,7 +342,7 @@ func _animate_swap_fly(from_slot, fruit_type, to_area, to_slot):
 	var fly = preload("res://scenes/tiles/FruitTile.tscn").instance()
 	fly.draw_bg = false
 	fly.fruit_type = fruit_type
-	fly.rect_min_size = Vector2(64, 64)
+	fly.rect_min_size = Vector2(128, 128)
 	fly.rect_position = from_slot.rect_global_position
 	add_child(fly)
 	move_child(fly, 4)  # 游戏格子之上，拖拽预览之下

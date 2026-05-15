@@ -4,13 +4,18 @@ enum FruitType { EMPTY, ORANGE, APPLE, GRAPE, LEMON, WATERMELON, BLUEBERRY, CHER
 export(FruitType) var fruit_type = FruitType.ORANGE setget _set_type
 export(bool) var draw_bg = true
 
+const BG_FILL = Color(0.975, 0.965, 0.93)
+const BG_STROKE = Color(0.88, 0.82, 0.72)
+const CORNER_R = 16
+const STROKE_W = 4
+
 func _set_type(v):
 	fruit_type = v
 	update()
 
 func _draw():
 	if draw_bg:
-		draw_rect(Rect2(Vector2(), rect_size), Color(0.2, 0.2, 0.26))
+		_draw_rounded_rect(Vector2(), rect_size, CORNER_R, BG_FILL, BG_STROKE, STROKE_W)
 
 	match fruit_type:
 		FruitType.ORANGE:     _draw_orange()
@@ -113,3 +118,26 @@ func _octagon(cx, cy, r) -> PoolVector2Array:
 		var a = i * TAU / 8 - TAU / 16
 		pts.append(Vector2(cx + cos(a) * r, cy + sin(a) * r))
 	return pts
+
+func _draw_rounded_rect(pos, size, radius, fill, stroke=null, sw=0):
+	var r = min(radius, min(size.x, size.y) / 2)
+	var p = pos
+	var s = size
+	if stroke and sw > 0:
+		_draw_filled_rounded(p, s, r, stroke)
+		var inset = sw
+		var inner_p = p + Vector2(inset, inset)
+		var inner_s = s - Vector2(inset*2, inset*2)
+		var inner_r = max(0, r - inset)
+		if inner_s.x > 0 and inner_s.y > 0:
+			_draw_filled_rounded(inner_p, inner_s, inner_r, fill)
+	else:
+		_draw_filled_rounded(p, s, r, fill)
+
+func _draw_filled_rounded(pos, size, r, color):
+	draw_rect(Rect2(pos + Vector2(r, 0), size - Vector2(r*2, 0)), color)
+	draw_rect(Rect2(pos + Vector2(0, r), size - Vector2(0, r*2)), color)
+	draw_circle(pos + Vector2(r, r), r, color)
+	draw_circle(pos + Vector2(size.x - r, r), r, color)
+	draw_circle(pos + Vector2(r, size.y - r), r, color)
+	draw_circle(pos + Vector2(size.x - r, size.y - r), r, color)

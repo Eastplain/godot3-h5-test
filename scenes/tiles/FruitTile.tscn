@@ -4,4 +4,4 @@
 
 [node name="FruitTile" type="Control"]
 script = ExtResource( 1 )
-rect_min_size = Vector2( 60, 60 )
+rect_min_size = Vector2( 120, 120 )
